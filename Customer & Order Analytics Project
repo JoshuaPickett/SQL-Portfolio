@@ -84,28 +84,35 @@ HAVING COUNT(Quantity) >= 3;
 #How many of each type of headphone were sold in February?
 
 
-SELECT Product, COUNT(Quantity)
+SELECT Product, SUM(Quantity)
 FROM FebSales
-WHERE Product LIKE '%Headphone%'
+WHERE Product LIKE '%Headphones%'
 GROUP BY Product;
 
 
 #What was the average amount spent per account in February?
 
-SELECT AVG(FebSales.price) / COUNT(customers.acctnum) AS AVG
+SELECT SUM(price*quantity) / COUNT(customers.acctnum) AS AVG
 FROM FebSales
-INNER JOIN customers ON customers.order_id=FebSales.orderid;
+LEFT JOIN customers
+ON customers.order_id=FebSales.orderid
+WHERE length(orderid) = 6 
+AND orderid <> 'Order ID';
 
 
 #What was the average quantity of products purchased per account in February?
 
-SELECT SUM(product) / COUNT(acctnum) AS AVG
+SELECT SUM(quantity) / COUNT(acctnum) AS AVG
 FROM customers
-INNER JOIN FebSales ON customers.order_id=FebSales.orderid;
+INNER JOIN FebSales ON customers.order_id=FebSales.orderid
+WHERE length(orderid) = 6 
+AND orderid <> 'Order ID';
 
 
 #Which product brought in the most revenue in January and how much revenue did it bring in total?
 
 SELECT Product, SUM(Quantity*price) AS Total_Revenue
 FROM JanSales
-GROUP BY Product;
+GROUP BY Product
+ORDER BY sum(quantity*price) desc 
+LIMIT 1;
